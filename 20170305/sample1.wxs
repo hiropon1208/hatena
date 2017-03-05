@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="66010be0-3d3f-498f-8bb5-a50c65043751" Name="HogeHogeTool" Language="1041" Codepage="932" Version="0.0.1.0"
+				Manufacturer="chiorin Industry and Control Solutions, Ltd." UpgradeCode="f529a783-e25f-4db9-bb64-b044da5b63bc">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+		<MajorUpgrade DowngradeErrorMessage="A newer version of InteriCamTool is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+		<Feature Id="ProductFeature" Title="HogeHogeToolInstaller" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id='ProgramMenuDir' />
+		</Feature>
+<!-- ここから UI定義 -->
+         <UI Id="WixUI_InstallDirEx"><!--【← WixUI_InstallDirのままだとデフォルトのUI定義名と重複するので、Exを追加】-->
+            <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+            <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+            <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+            <Property Id="WixUI_Mode" Value="InstallDir" />
+
+            <DialogRef Id="BrowseDlg" />
+            <DialogRef Id="DiskCostDlg" />
+            <DialogRef Id="ErrorDlg" />
+            <DialogRef Id="FatalError" />
+            <DialogRef Id="FilesInUse" />
+            <DialogRef Id="MsiRMFilesInUse" />
+            <DialogRef Id="PrepareDlg" />
+            <DialogRef Id="ProgressDlg" />
+            <DialogRef Id="ResumeDlg" />
+            <DialogRef Id="UserExit" />
+            
+            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
+            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+
+            <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">NOT Installed</Publish>
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
+
+            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2">1</Publish>
+            
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" Order="1">NOT Installed</Publish>
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">Installed AND PATCH</Publish>
+
+            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+
+            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+
+            <Property Id="ARPNOMODIFY" Value="1" />
+        </UI>
+    <UIRef Id="WixUI_Common" /> 
+<!-- ここまで UI定義 -->
+
+<!-- -->
+    <Property Id="WIXUI_INSTALLDIR" Value="TESTFILEPRODUCTDIR" />
+    <UIRef Id="WixUI_InstallDirEx" />
+<!--  -->
+    <Icon Id="icon.ico" SourceFile="ico\Icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+  </Product>
+
+<Fragment>
+<Directory Id="TARGETDIR" Name="SourceDir">
+  <Directory Id="ProgramFilesFolder">
+    <Directory Id="INSTALLFOLDER2" Name="chiorin">
+      <Directory Id="TESTFILEPRODUCTDIR" Name="HogeHogeTool" />
+    </Directory>
+  </Directory>
+<!-- -->
+  <Directory Id="ProgramMenuFolder" Name="Programs">
+    <Directory Id="ProgramMenuDir" Name="HogeHogeTool">
+      <Component Id="ProgramMenuDir" Guid="D2EBD8AC-9D03-771a-C46D-079C8C927510">
+        <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' 
+                     Type='string' Value='' KeyPath='yes' />
+      </Component>
+    </Directory>
+  </Directory>
+<Directory Id="DesktopFolder" Name="Desktop" />
+<!-- -->
+</Directory>
+    </Fragment>
+    <Fragment>
+        <!-- ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER" -->
+        <ComponentGroup Id="ProductComponents" Directory="TESTFILEPRODUCTDIR"> <!-- ★ここはかえている -->
+            <!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+            <!-- <Component Id="ProductComponent"> -->
+            <!-- TODO: Insert files, registry keys, and other resources here. -->
+            <!-- </Component> -->
+          <Component Id="HogeHogeToolApps" Guid="48d5d235-3414-41b5-852c-abde052d603c" Permanent="no">
+            <File Id="File2" Name="HogeHogeTool.exe" DiskId="1" Source="InstallFiles\HogeHogeTool.exe">
+              <Shortcut Id="startmenuFoobar10" Directory="ProgramMenuDir" Name="HogeHogeTool"
+                        WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="icon.ico">
+              </Shortcut>
+              <Shortcut Id="desktopFoobar10" Directory="DesktopFolder" Name="HogeHogeTool"
+                        WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="icon.ico">
+              </Shortcut>
+            </File>
+            <File Id="File1" Name="foofoo.dll" DiskId="1" Source="InstallFiles\foofoo.dll" />
+          </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
